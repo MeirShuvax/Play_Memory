@@ -33,16 +33,17 @@ function Play() {
         console.log('Inputs loaded:', inputs);
         console.log('Game Data loaded:', gameInfo);
 
-        // Generate an array with pairs of images based on NumberOfRoses * NumberOfCalls / 2
+        // Generate an array with pairs of image indices based on NumberOfRoses * NumberOfCalls / 2
         const numPairs = (inputs.NumberOfRoses * inputs.NumberOfCalls) / 2;
-        const imageArray = [];
+        const imageIndices = [];
         for (let i = 0; i < numPairs; i++) {
-            imageArray.push(`${process.env.PUBLIC_URL}/images/${i}.jpg`);
-            imageArray.push(`${process.env.PUBLIC_URL}/images/${i}.jpg`);
+            imageIndices.push(i);
+            imageIndices.push(i);
         }
 
         // Shuffle the array once and set it
-        setShuffledImages(shuffleArray(imageArray));
+        const shuffled = shuffleArray(imageIndices);
+        setShuffledImages(shuffled);
 
         // Calculate the card size based on the number of rows and columns
         const calculateCardSize = () => {
@@ -115,8 +116,6 @@ function Play() {
             Score: score
         };
 
-        setGameInfo(finalGameInfo);
-
         // Save the game result to the leaderboard
         saveToLeaderboard(finalGameInfo);
 
@@ -140,7 +139,10 @@ function Play() {
                 <Row className="justify-content-center mb-3">
                     <Col md={8} className="text-center">
                         <h2 className="mb-3">Game Data</h2>
+                        <p><strong>Name:</strong> {gameInfo.Name}</p>
                         <p><strong>Steps:</strong> {gameInfo.Steps}</p>
+                        <p><strong>Score:</strong> {gameInfo.Score}</p>
+                        <p><strong>Rank:</strong> {gameInfo.Rank}</p>
                     </Col>
                 </Row>
                 <Row className="justify-content-center">
@@ -155,7 +157,7 @@ function Play() {
                             justifyContent: 'center'
                         }}
                     >
-                        {[...Array(inputs.NumberOfRoses * inputs.NumberOfCalls)].map((_, index) => {
+                        {shuffledImages.map((imageIndex, index) => {
                             const isRevealed = revealed[index];
                             return (
                                 <Card
@@ -168,21 +170,12 @@ function Play() {
                                         height: `${cardSize}px`
                                     }}
                                 >
-                                    {isRevealed ? (
-                                        <Card.Img
-                                            variant="top"
-                                            src={shuffledImages[index]}
-                                            alt={`Card image ${index}`}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        />
-                                    ) : (
-                                        <Card.Img
-                                            variant="top"
-                                            src={`${process.env.PUBLIC_URL}/images/card.jpg`}
-                                            alt="Placeholder"
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        />
-                                    )}
+                                    <Card.Img
+    variant="top"
+    src={isRevealed ? `${process.env.PUBLIC_URL}/images/${imageIndex}.jpg` : `${process.env.PUBLIC_URL}/images/card.jpg`}
+    alt="Memory Card"
+    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+/>
                                 </Card>
                             );
                         })}
